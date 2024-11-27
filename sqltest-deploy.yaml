@@ -1,0 +1,68 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+    email: support@stackrox.com
+    owner: stackrox
+  name: central-db-2
+  namespace: stackrox
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: sqltest-runner
+    ports:
+    - port: 5432
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app: central-db
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    labels:
+        app: sqltest-runner
+    name: sqltest-runner
+    namespace: stackrox
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: sqltest-runner
+    template:
+        metadata:
+            labels:
+                app: sqltest-runner
+        spec:
+            containers:
+                - image: quay.io/ybrillou/sqlperftest:20241118
+                  env:
+                  imagePullPolicy: Always
+                  name: sqltest-runner
+                  volumeMounts:
+                      - mountPath: /run/secrets/stackrox.io/db-password
+                        name: central-db-password
+                      - mountPath: /run/secrets/stackrox.io/certs/
+                        name: central-certs-volume
+                        readOnly: true
+            volumes:
+                - name: central-db-password
+                  secret:
+                      defaultMode: 420
+                      secretName: central-db-password
+                - name: central-certs-volume
+                  secret:
+                      defaultMode: 420
+                      secretName: central-tls
+            dnsPolicy: ClusterFirst
+            restartPolicy: Always
+            schedulerName: default-scheduler
+            terminationGracePeriodSeconds: 30
+            imagePullSecrets:
+            - name: regcred
+
