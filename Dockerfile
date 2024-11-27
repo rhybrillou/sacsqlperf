@@ -4,7 +4,7 @@ WORKDIR /performance
 
 USER 12345
 
-COPY ./perftest /bin/perftest
+COPY ./bin/perftest /bin/perftest
 
 ENTRYPOINT [ "/bin/perftest" ]
 CMD [ "/bin/perftest" ]
