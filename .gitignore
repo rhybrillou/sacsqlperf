@@ -1,1 +1,5 @@
+# Build output
 bin/*
+
+# Exclude GoLand/IntelliJ files in the repo.
+/**/.idea/**/*
