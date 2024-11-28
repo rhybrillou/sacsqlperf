@@ -9,40 +9,41 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/rhybrillou/sacsqlperf/src/pkg/db"
+	"github.com/rhybrillou/sacsqlperf/src/pkg/query"
 	"github.com/rhybrillou/sacsqlperf/src/pkg/scope"
 )
 
 var (
 	scopeSizes = []int{10, 20, 50, 100, 200, 500, 1000, 2000}
 
-	testedQueries = []*query{
+	testedQueries = []*query.Query{
 		{
-			statement: "select",
-			statementTargets: []string{
+			Statement: "select",
+			StatementTargets: []string{
 				"distinct(images.Id) as Image_Sha",
 				"images.RiskScore as image_risk_score",
 			},
-			targetTables: []string{"images"},
-			innerJoins: []innerJoin{
+			TargetTables: []string{"images"},
+			InnerJoins: []query.InnerJoin{
 				{
-					left:  qualifiedColumn{tableName: "images", columnName: "Id"},
-					right: qualifiedColumn{tableName: "deployments_containers", columnName: "Image_Id"},
+					Left:  query.QualifiedColumn{TableName: "images", ColumnName: "Id"},
+					Right: query.QualifiedColumn{TableName: "deployments_containers", ColumnName: "Image_Id"},
 				},
 				{
-					left:  qualifiedColumn{tableName: "deployments_containers", columnName: "deployments_Id"},
-					right: qualifiedColumn{tableName: "deployments", columnName: "Id"},
+					Left:  query.QualifiedColumn{TableName: "deployments_containers", ColumnName: "deployments_Id"},
+					Right: query.QualifiedColumn{TableName: "deployments", ColumnName: "Id"},
 				},
 			},
-			orderBy: []orderColumn{
-				{reversed: true, column: qualifiedColumn{tableName: "images", columnName: "RiskScore"}},
+			OrderBy: []query.OrderColumn{
+				{Reversed: true, Column: query.QualifiedColumn{TableName: "images", ColumnName: "RiskScore"}},
 			},
-			queryPagination: &pagination{
-				limit: 6,
+			QueryPagination: &query.Pagination{
+				Limit: 6,
 			},
-			scopeLevel:           "namespace",
-			scopeTable:           "deployments",
-			scopeClusterColumn:   "ClusterId",
-			scopeNamespaceColumn: "Namespace",
+			ScopeLevel:           "namespace",
+			ScopeTable:           "deployments",
+			ScopeClusterColumn:   "ClusterId",
+			ScopeNamespaceColumn: "Namespace",
 		},
 	}
 )
@@ -131,7 +132,7 @@ func main() {
 	}
 }
 
-func explain(ctx context.Context, db *pgxpool.Pool, request *query) error {
+func explain(ctx context.Context, db *pgxpool.Pool, request *query.Query) error {
 	stmt, bindValues := request.ForExecution()
 	explainRows, err := db.Query(ctx, fmt.Sprintf("explain %s", stmt), bindValues...)
 	if err != nil {
@@ -154,45 +155,45 @@ func done() {
 	time.Sleep(time.Hour)
 }
 
-func injectSACFilter(request *query, scope []scope.ScopeNamespace) *query {
+func injectSACFilter(request *query.Query, scope []scope.ScopeNamespace) *query.Query {
 	if request == nil {
 		return nil
 	}
 	if len(scope) <= 0 {
 		return request
 	}
-	if request.scopeLevel != "cluster" && request.scopeLevel != "namespace" {
+	if request.ScopeLevel != "cluster" && request.ScopeLevel != "namespace" {
 		return request
 	}
 	namespacesByCluster := make(map[string][]string, 0)
 	for _, ns := range scope {
 		namespacesByCluster[ns.ClusterID] = append(namespacesByCluster[ns.ClusterID], ns.NamespaceName)
 	}
-	whereClusters := make([]whereClausePart, 0, len(namespacesByCluster))
+	whereClusters := make([]query.WhereClausePart, 0, len(namespacesByCluster))
 	for clusterID, namespaces := range namespacesByCluster {
-		clusterColumnPart := &qualifiedColumn{
-			tableName:  request.scopeTable,
-			columnName: request.scopeClusterColumn,
-			value:      clusterID,
+		clusterColumnPart := &query.QualifiedColumn{
+			TableName:  request.ScopeTable,
+			ColumnName: request.ScopeClusterColumn,
+			Value:      clusterID,
 		}
-		switch request.scopeLevel {
+		switch request.ScopeLevel {
 		case "cluster":
 			whereClusters = append(whereClusters, clusterColumnPart)
 		case "namespace":
-			whereClusterNamespaces := make([]whereClausePart, 0, len(namespaces))
+			whereClusterNamespaces := make([]query.WhereClausePart, 0, len(namespaces))
 			for _, ns := range namespaces {
-				namespaceColumnPart := &qualifiedColumn{
-					tableName:  request.scopeTable,
-					columnName: request.scopeNamespaceColumn,
-					value:      ns,
+				namespaceColumnPart := &query.QualifiedColumn{
+					TableName:  request.ScopeTable,
+					ColumnName: request.ScopeNamespaceColumn,
+					Value:      ns,
 				}
 				whereClusterNamespaces = append(whereClusterNamespaces, namespaceColumnPart)
 			}
-			whereClusters = append(whereClusters, &wcAnd{
-				operands: []whereClausePart{
+			whereClusters = append(whereClusters, &query.WcAnd{
+				Operands: []query.WhereClausePart{
 					clusterColumnPart,
-					&wcOr{
-						operands: whereClusterNamespaces,
+					&query.WcOr{
+						Operands: whereClusterNamespaces,
 					},
 				},
 			})
@@ -200,30 +201,30 @@ func injectSACFilter(request *query, scope []scope.ScopeNamespace) *query {
 			continue
 		}
 	}
-	result := &query{
-		statement:            request.statement,
-		statementTargets:     request.statementTargets,
-		targetTables:         request.targetTables,
-		innerJoins:           request.innerJoins,
-		orderBy:              request.orderBy,
-		queryPagination:      request.queryPagination,
-		scopeLevel:           request.scopeLevel,
-		scopeTable:           request.scopeTable,
-		scopeClusterColumn:   request.scopeClusterColumn,
-		scopeNamespaceColumn: request.scopeNamespaceColumn,
+	result := &query.Query{
+		Statement:            request.Statement,
+		StatementTargets:     request.StatementTargets,
+		TargetTables:         request.TargetTables,
+		InnerJoins:           request.InnerJoins,
+		OrderBy:              request.OrderBy,
+		QueryPagination:      request.QueryPagination,
+		ScopeLevel:           request.ScopeLevel,
+		ScopeTable:           request.ScopeTable,
+		ScopeClusterColumn:   request.ScopeClusterColumn,
+		ScopeNamespaceColumn: request.ScopeNamespaceColumn,
 	}
-	if request.whereClause != nil {
-		result.whereClause = &wcAnd{
-			operands: []whereClausePart{
-				&wcOr{
-					operands: whereClusters,
+	if request.WhereClause != nil {
+		result.WhereClause = &query.WcAnd{
+			Operands: []query.WhereClausePart{
+				&query.WcOr{
+					Operands: whereClusters,
 				},
-				request.whereClause,
+				request.WhereClause,
 			},
 		}
 	} else {
-		result.whereClause = &wcOr{
-			operands: whereClusters,
+		result.WhereClause = &query.WcOr{
+			Operands: whereClusters,
 		}
 	}
 	return result
