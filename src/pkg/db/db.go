@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"context"
@@ -40,7 +40,7 @@ func getDBConfig() (*pgxpool.Config, error) {
 	return config, nil
 }
 
-func getDBConn(ctx context.Context) (*pgxpool.Pool, error) {
+func GetDBConn(ctx context.Context) (*pgxpool.Pool, error) {
 	config, err := getDBConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not get postgres config")

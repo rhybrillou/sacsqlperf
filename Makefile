@@ -2,7 +2,7 @@ gomod:
 	@go mod tidy
 
 gobin: gomod
-	GOOS=linux GOARCH=amd64 go build -o bin/perftest ./...
+	GOOS=linux GOARCH=amd64 go build -o bin/perftest ./src/main.go ./src/query.go ./src/query_where.go ./src/scope_selection.go
 
 image: gobin
 	@docker build -t sqlperftest:20241118 -f ./Dockerfile .

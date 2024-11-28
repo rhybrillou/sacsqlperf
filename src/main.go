@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
+	"github.com/rhybrillou/sacsqlperf/src/pkg/db"
 )
 
 var (
@@ -52,7 +53,7 @@ func main() {
 	_ = ctx
 	fmt.Println("Starting SQL performance tests")
 
-	db, err := getDBConn(ctx)
+	db, err := db.GetDBConn(ctx)
 	if err != nil {
 		fmt.Printf("Error getting DB connection: %v\n", err)
 		return
