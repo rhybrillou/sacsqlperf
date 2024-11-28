@@ -2,7 +2,7 @@ gomod:
 	@go mod tidy
 
 gobin: gomod
-	GOOS=linux GOARCH=amd64 go build -o perftest
+	GOOS=linux GOARCH=amd64 go build -o bin/perftest ./...
 
 image: gobin
 	@docker build -t sqlperftest:20241118 -f ./Dockerfile .
