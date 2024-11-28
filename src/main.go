@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/rhybrillou/sacsqlperf/src/pkg/db"
+	"github.com/rhybrillou/sacsqlperf/src/pkg/scope"
 )
 
 var (
@@ -97,8 +98,8 @@ func main() {
 	for clusterID, namespaces := range namespacesByCluster {
 		fmt.Printf("Found %d namespaces for cluster %q\n", len(namespaces), clusterID)
 	}
-	orderedScopeNamespaces := selectNamespacesOrdered(namespacesByCluster, scopeSizes)
-	pseudoRandomScopeNamespaces := selectNamespacesRandom(namespacesByCluster, scopeSizes)
+	orderedScopeNamespaces := scope.SelectNamespacesOrdered(namespacesByCluster, scopeSizes)
+	pseudoRandomScopeNamespaces := scope.SelectNamespacesRandom(namespacesByCluster, scopeSizes)
 	_ = orderedScopeNamespaces
 	_ = pseudoRandomScopeNamespaces
 
@@ -153,7 +154,7 @@ func done() {
 	time.Sleep(time.Hour)
 }
 
-func injectSACFilter(request *query, scope []scopeNamespace) *query {
+func injectSACFilter(request *query, scope []scope.ScopeNamespace) *query {
 	if request == nil {
 		return nil
 	}

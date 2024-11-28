@@ -1,4 +1,4 @@
-package main
+package scope
 
 import (
 	"testing"
@@ -187,27 +187,27 @@ func TestSelectNamespacesOrdered(t *testing.T) {
 		"Cluster1": []string{"namespaceD", "namespaceA", "namespaceB", "namespaceC"},
 		"Cluster2": []string{"namespaceO", "namespaceG", "namespaceS", "namespaceT", "namespaceE", "namespaceH", "namespaceL", "namespaceP", "namespaceF", "namespaceQ", "namespaceN", "namespaceK", "namespaceM", "namespaceJ", "namespaceI", "namespaceR"},
 	}
-	scopeNamespaceA := scopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceA"}
-	scopeNamespaceB := scopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceB"}
-	scopeNamespaceC := scopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceC"}
-	scopeNamespaceD := scopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceD"}
-	scopeNamespaceE := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceE"}
-	scopeNamespaceF := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceF"}
-	scopeNamespaceG := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceG"}
-	scopeNamespaceH := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceH"}
-	scopeNamespaceI := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceI"}
-	scopeNamespaceJ := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceJ"}
-	scopeNamespaceK := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceK"}
-	scopeNamespaceL := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceL"}
-	scopeNamespaceM := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceM"}
-	scopeNamespaceN := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceN"}
-	scopeNamespaceO := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceO"}
-	scopeNamespaceP := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceP"}
-	scopeNamespaceQ := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceQ"}
-	scopeNamespaceR := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceR"}
-	scopeNamespaceS := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceS"}
-	scopeNamespaceT := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceT"}
-	expectedSelectedNamespaces := [][]scopeNamespace{
+	scopeNamespaceA := ScopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceA"}
+	scopeNamespaceB := ScopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceB"}
+	scopeNamespaceC := ScopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceC"}
+	scopeNamespaceD := ScopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceD"}
+	scopeNamespaceE := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceE"}
+	scopeNamespaceF := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceF"}
+	scopeNamespaceG := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceG"}
+	scopeNamespaceH := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceH"}
+	scopeNamespaceI := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceI"}
+	scopeNamespaceJ := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceJ"}
+	scopeNamespaceK := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceK"}
+	scopeNamespaceL := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceL"}
+	scopeNamespaceM := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceM"}
+	scopeNamespaceN := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceN"}
+	scopeNamespaceO := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceO"}
+	scopeNamespaceP := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceP"}
+	scopeNamespaceQ := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceQ"}
+	scopeNamespaceR := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceR"}
+	scopeNamespaceS := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceS"}
+	scopeNamespaceT := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceT"}
+	expectedSelectedNamespaces := [][]ScopeNamespace{
 		{scopeNamespaceA},
 		{scopeNamespaceA, scopeNamespaceB, scopeNamespaceC, scopeNamespaceD, scopeNamespaceE},
 		{
@@ -218,7 +218,7 @@ func TestSelectNamespacesOrdered(t *testing.T) {
 		},
 	}
 	scopeSizes := []int{1, 5, 100}
-	selectedNamespaces := selectNamespacesOrdered(randomNamespacesByCluster, scopeSizes)
+	selectedNamespaces := SelectNamespacesOrdered(randomNamespacesByCluster, scopeSizes)
 	assert.Equal(t, expectedSelectedNamespaces, selectedNamespaces)
 }
 
@@ -227,27 +227,27 @@ func TestSelectNamespacesRandom(t *testing.T) {
 		"Cluster1": []string{"namespaceA", "namespaceB", "namespaceC", "namespaceD"},
 		"Cluster2": []string{"namespaceE", "namespaceF", "namespaceG", "namespaceH", "namespaceI", "namespaceJ", "namespaceK", "namespaceL", "namespaceM", "namespaceN", "namespaceO", "namespaceP", "namespaceQ", "namespaceR", "namespaceS", "namespaceT"},
 	}
-	scopeNamespaceA := scopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceA"}
-	scopeNamespaceB := scopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceB"}
-	scopeNamespaceC := scopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceC"}
-	scopeNamespaceD := scopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceD"}
-	scopeNamespaceE := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceE"}
-	scopeNamespaceF := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceF"}
-	scopeNamespaceG := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceG"}
-	scopeNamespaceH := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceH"}
-	scopeNamespaceI := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceI"}
-	scopeNamespaceJ := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceJ"}
-	scopeNamespaceK := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceK"}
-	scopeNamespaceL := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceL"}
-	scopeNamespaceM := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceM"}
-	scopeNamespaceN := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceN"}
-	scopeNamespaceO := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceO"}
-	scopeNamespaceP := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceP"}
-	scopeNamespaceQ := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceQ"}
-	scopeNamespaceR := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceR"}
-	scopeNamespaceS := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceS"}
-	scopeNamespaceT := scopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceT"}
-	expectedSelectedNamespaces := [][]scopeNamespace{
+	scopeNamespaceA := ScopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceA"}
+	scopeNamespaceB := ScopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceB"}
+	scopeNamespaceC := ScopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceC"}
+	scopeNamespaceD := ScopeNamespace{ClusterID: "Cluster1", NamespaceName: "namespaceD"}
+	scopeNamespaceE := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceE"}
+	scopeNamespaceF := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceF"}
+	scopeNamespaceG := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceG"}
+	scopeNamespaceH := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceH"}
+	scopeNamespaceI := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceI"}
+	scopeNamespaceJ := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceJ"}
+	scopeNamespaceK := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceK"}
+	scopeNamespaceL := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceL"}
+	scopeNamespaceM := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceM"}
+	scopeNamespaceN := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceN"}
+	scopeNamespaceO := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceO"}
+	scopeNamespaceP := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceP"}
+	scopeNamespaceQ := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceQ"}
+	scopeNamespaceR := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceR"}
+	scopeNamespaceS := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceS"}
+	scopeNamespaceT := ScopeNamespace{ClusterID: "Cluster2", NamespaceName: "namespaceT"}
+	expectedSelectedNamespaces := [][]ScopeNamespace{
 		{scopeNamespaceD},
 		{scopeNamespaceD, scopeNamespaceA, scopeNamespaceB, scopeNamespaceC, scopeNamespaceO},
 		{
@@ -258,6 +258,6 @@ func TestSelectNamespacesRandom(t *testing.T) {
 		},
 	}
 	scopeSizes := []int{1, 5, 100}
-	selectedNamespaces := selectNamespacesRandom(randomNamespacesByCluster, scopeSizes)
+	selectedNamespaces := SelectNamespacesRandom(randomNamespacesByCluster, scopeSizes)
 	assert.Equal(t, expectedSelectedNamespaces, selectedNamespaces)
 }

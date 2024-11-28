@@ -1,11 +1,11 @@
-package main
+package scope
 
 import (
 	"math/rand"
 	"sort"
 )
 
-type scopeNamespace struct {
+type ScopeNamespace struct {
 	ClusterID     string
 	NamespaceName string
 }
@@ -69,10 +69,10 @@ func shuffleNamespaces(namespacesByCluster map[string][]string) ([]string, map[s
 	return shuffledClusterIDs, shuffledNamespacesByClusterID
 }
 
-func selectNamespaces(clusterIDs []string, namespacesByCluster map[string][]string, sizes []int) [][]scopeNamespace {
-	output := make([][]scopeNamespace, 0, len(sizes))
+func selectNamespaces(clusterIDs []string, namespacesByCluster map[string][]string, sizes []int) [][]ScopeNamespace {
+	output := make([][]ScopeNamespace, 0, len(sizes))
 	for _, size := range sizes {
-		selectedNamespaces := make([]scopeNamespace, 0, size)
+		selectedNamespaces := make([]ScopeNamespace, 0, size)
 		selectedNamespaceCount := 0
 		consumedClusters := 0
 		for consumedClusters < len(clusterIDs) && selectedNamespaceCount < size {
@@ -81,7 +81,7 @@ func selectNamespaces(clusterIDs []string, namespacesByCluster map[string][]stri
 			clusterNamespaces := namespacesByCluster[clusterID]
 			for selectedNamespaceCount < size && selectedNamespacesInCluster < len(clusterNamespaces) {
 				namespace := clusterNamespaces[selectedNamespacesInCluster]
-				selectedNamespaces = append(selectedNamespaces, scopeNamespace{ClusterID: clusterID, NamespaceName: namespace})
+				selectedNamespaces = append(selectedNamespaces, ScopeNamespace{ClusterID: clusterID, NamespaceName: namespace})
 				selectedNamespacesInCluster++
 				selectedNamespaceCount++
 			}
@@ -92,12 +92,12 @@ func selectNamespaces(clusterIDs []string, namespacesByCluster map[string][]stri
 	return output
 }
 
-func selectNamespacesOrdered(namespacesByCluster map[string][]string, sizes []int) [][]scopeNamespace {
+func SelectNamespacesOrdered(namespacesByCluster map[string][]string, sizes []int) [][]ScopeNamespace {
 	sortedClusterIDs, sortedNamespacesByCluster := sortNamespaces(namespacesByCluster)
 	return selectNamespaces(sortedClusterIDs, sortedNamespacesByCluster, sizes)
 }
 
-func selectNamespacesRandom(namespacesByCluster map[string][]string, sizes []int) [][]scopeNamespace {
+func SelectNamespacesRandom(namespacesByCluster map[string][]string, sizes []int) [][]ScopeNamespace {
 	_, sortedNamespacesByCluster := sortNamespaces(namespacesByCluster)
 	shuffledClusterIDs, shuffledNamespacesByCluster := shuffleNamespaces(sortedNamespacesByCluster)
 	return selectNamespaces(shuffledClusterIDs, shuffledNamespacesByCluster, sizes)
