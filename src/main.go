@@ -45,6 +45,29 @@ var (
 			ScopeClusterColumn:   "ClusterId",
 			ScopeNamespaceColumn: "Namespace",
 		},
+		{
+			Statement: "select",
+			StatementTargets: []string{
+				"count(*)",
+			},
+			TargetTables: []string{"alerts"},
+			InnerJoins:   []query.InnerJoin{},
+			WhereClause: &query.WcAnd{
+				Operands: []query.WhereClausePart{
+					&query.QualifiedColumn{TableName: "alerts", ColumnName: "Policy_Severity", Value: 3},
+					&query.WcOr{
+						Operands: []query.WhereClausePart{
+							&query.QualifiedColumn{TableName: "alerts", ColumnName: "State", Value: 0},
+							&query.QualifiedColumn{TableName: "alerts", ColumnName: "State", Value: 3},
+						},
+					},
+				},
+			},
+			ScopeLevel:           "namespace",
+			ScopeTable:           "alerts",
+			ScopeClusterColumn:   "ClusterId",
+			ScopeNamespaceColumn: "Namespace",
+		},
 	}
 )
 
@@ -134,7 +157,7 @@ func main() {
 
 func explain(ctx context.Context, db *pgxpool.Pool, request *query.Query) error {
 	stmt, bindValues := request.ForExecution()
-	explainRows, err := db.Query(ctx, fmt.Sprintf("explain %s", stmt), bindValues...)
+	explainRows, err := db.Query(ctx, fmt.Sprintf("explain (verbose, analyze, buffers, settings) %s", stmt), bindValues...)
 	if err != nil {
 		return err
 	}
