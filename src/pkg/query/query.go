@@ -33,6 +33,7 @@ type Query struct {
 	InnerJoins           []InnerJoin
 	WhereClause          WhereClausePart
 	OrderBy              []OrderColumn
+	GroupBy              []QualifiedColumn
 	QueryPagination      *Pagination
 	ScopeLevel           string
 	ScopeTable           string
@@ -78,6 +79,15 @@ func (q *Query) ForExecution() (string, []interface{}) {
 			if order.Reversed {
 				qb.WriteString(" desc")
 			}
+		}
+	}
+	if len(q.GroupBy) > 0 {
+		qb.WriteString(" group by ")
+		for ix, column := range q.GroupBy {
+			if ix > 0 {
+				qb.WriteString(", ")
+			}
+			qb.WriteString(fmt.Sprintf("%s.%s", column.TableName, column.ColumnName))
 		}
 	}
 	if q.QueryPagination != nil {

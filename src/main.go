@@ -44,17 +44,40 @@ var (
 			ScopeTable:           "deployments",
 			ScopeClusterColumn:   "ClusterId",
 			ScopeNamespaceColumn: "Namespace",
-		},
+		}, /*
+			{
+				Statement: "select",
+				StatementTargets: []string{
+					"count(*)",
+				},
+				TargetTables: []string{"alerts"},
+				InnerJoins:   []query.InnerJoin{},
+				WhereClause: &query.WcAnd{
+					Operands: []query.WhereClausePart{
+						&query.QualifiedColumn{TableName: "alerts", ColumnName: "Policy_Severity", Value: 3},
+						&query.WcOr{
+							Operands: []query.WhereClausePart{
+								&query.QualifiedColumn{TableName: "alerts", ColumnName: "State", Value: 0},
+								&query.QualifiedColumn{TableName: "alerts", ColumnName: "State", Value: 3},
+							},
+						},
+					},
+				},
+				ScopeLevel:           "namespace",
+				ScopeTable:           "alerts",
+				ScopeClusterColumn:   "ClusterId",
+				ScopeNamespaceColumn: "Namespace",
+			}, */
 		{
 			Statement: "select",
 			StatementTargets: []string{
+				"policy_severity",
 				"count(*)",
 			},
 			TargetTables: []string{"alerts"},
 			InnerJoins:   []query.InnerJoin{},
 			WhereClause: &query.WcAnd{
 				Operands: []query.WhereClausePart{
-					&query.QualifiedColumn{TableName: "alerts", ColumnName: "Policy_Severity", Value: 3},
 					&query.WcOr{
 						Operands: []query.WhereClausePart{
 							&query.QualifiedColumn{TableName: "alerts", ColumnName: "State", Value: 0},
@@ -62,6 +85,9 @@ var (
 						},
 					},
 				},
+			},
+			GroupBy: []query.QualifiedColumn{
+				{TableName: "alerts", ColumnName: "Policy_Severity"},
 			},
 			ScopeLevel:           "namespace",
 			ScopeTable:           "alerts",
@@ -230,6 +256,7 @@ func injectSACFilter(request *query.Query, scope []scope.ScopeNamespace) *query.
 		TargetTables:         request.TargetTables,
 		InnerJoins:           request.InnerJoins,
 		OrderBy:              request.OrderBy,
+		GroupBy:              request.GroupBy,
 		QueryPagination:      request.QueryPagination,
 		ScopeLevel:           request.ScopeLevel,
 		ScopeTable:           request.ScopeTable,
